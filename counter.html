@@ -12,13 +12,16 @@
                 alert(`Counter reached ${counter}`);
             }
         }
+        document.addEventListener("DOMContentLoaded", function () {
+            document.querySelector("button").onclick = count;
+        });
     </script>
 
 </head>
 
 <body>
     <h1>0</h1>
-    <button onclick="count()">Count</button>
+    <button>Count</button>
 </body>
 
 </html>
