@@ -19,14 +19,12 @@ from pathlib import Path
 MONTHS_THRESHOLD = 5
 DAYS_THRESHOLD   = MONTHS_THRESHOLD * 30
 
-# Known "always useless" extensions
 JUNK_EXTENSIONS = {
     ".tmp", ".temp", ".log", ".bak", ".old", ".chk", ".dmp", ".dump",
     ".~", ".swp", ".swo", ".DS_Store", ".Thumbs.db", ".thumbdata",
     ".crdownload", ".part", ".partial", ".cache",
 }
 
-# Signatures for basic corruption detection (magic bytes)
 KNOWN_SIGNATURES: dict[str, bytes] = {
     ".jpg":  b"\xff\xd8\xff",
     ".jpeg": b"\xff\xd8\xff",
@@ -45,7 +43,6 @@ KNOWN_SIGNATURES: dict[str, bytes] = {
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
 def file_age_days(path: Path) -> float:
-    """Return the number of days since the file was last accessed or modified."""
     try:
         st = path.stat()
         last_used = max(st.st_atime, st.st_mtime)
@@ -53,16 +50,13 @@ def file_age_days(path: Path) -> float:
     except Exception:
         return 0.0
 
-
 def is_empty(path: Path) -> bool:
     try:
         return path.stat().st_size == 0
     except Exception:
         return False
 
-
 def is_corrupted(path: Path) -> bool:
-    """Heuristic corruption check: verifies magic bytes for known types."""
     ext = path.suffix.lower()
     if ext not in KNOWN_SIGNATURES:
         return False
@@ -74,10 +68,8 @@ def is_corrupted(path: Path) -> bool:
     except (PermissionError, OSError):
         return False
 
-
 def is_junk(path: Path) -> bool:
     return path.suffix.lower() in JUNK_EXTENSIONS
-
 
 def human_size(size_bytes: int) -> str:
     for unit in ("B", "KB", "MB", "GB"):
@@ -85,7 +77,6 @@ def human_size(size_bytes: int) -> str:
             return f"{size_bytes:.1f} {unit}"
         size_bytes /= 1024
     return f"{size_bytes:.1f} TB"
-
 
 def human_age(days: float) -> str:
     if days < 1:
@@ -95,3 +86,74 @@ def human_age(days: float) -> str:
     if months:
         return f"{months}mo {rem_days}d"
     return f"{int(days)}d"
+
+
+# ── Main App ──────────────────────────────────────────────────────────────────
+
+class FileCleanerApp(tk.Tk):
+    # Dark-mode colour palette
+    BG        = "#1e1e2e"
+    PANEL     = "#2a2a3e"
+    ACCENT    = "#7c3aed"
+    ACCENT2   = "#06b6d4"
+    DANGER    = "#ef4444"
+    WARNING   = "#f59e0b"
+    SUCCESS   = "#22c55e"
+    TXT       = "#e2e8f0"
+    TXT_DIM   = "#94a3b8"
+    BORDER    = "#374151"
+
+    def __init__(self):
+        super().__init__()
+        self.title("🧹 File Cleanup Utility")
+        self.geometry("1080x720")
+        self.minsize(800, 560)
+        self.configure(bg=self.BG)
+        self.resizable(True, True)
+
+        self.scan_dir     = tk.StringVar()
+        self.status_text  = tk.StringVar(value="Choose a folder and click Scan.")
+        self.results: list[dict] = []
+        self._scan_thread = None
+        self._stop_scan   = False
+        self._selected_items: set[str] = set()
+
+        self._build_styles()
+
+    def _build_styles(self):
+        s = ttk.Style(self)
+        s.theme_use("clam")
+        s.configure("Treeview",
+                     background=self.PANEL, fieldbackground=self.PANEL,
+                     foreground=self.TXT, rowheight=28, borderwidth=0,
+                     font=("Segoe UI", 10))
+        s.configure("Treeview.Heading",
+                     background=self.ACCENT, foreground="white",
+                     font=("Segoe UI Semibold", 10), relief="flat")
+        s.map("Treeview",
+              background=[("selected", self.ACCENT)],
+              foreground=[("selected", "white")])
+        s.configure("Vertical.TScrollbar",
+                     troughcolor=self.PANEL, background=self.ACCENT,
+                     borderwidth=0, arrowsize=14)
+        s.configure("Accent.TButton",
+                     background=self.ACCENT, foreground="white",
+                     font=("Segoe UI Semibold", 10), padding=8, relief="flat")
+        s.map("Accent.TButton",
+              background=[("active", "#6d28d9"), ("disabled", "#4b5563")])
+        s.configure("Danger.TButton",
+                     background=self.DANGER, foreground="white",
+                     font=("Segoe UI Semibold", 10), padding=8, relief="flat")
+        s.map("Danger.TButton",
+              background=[("active", "#b91c1c"), ("disabled", "#4b5563")])
+        s.configure("TProgressbar",
+                     troughcolor=self.PANEL, background=self.ACCENT2,
+                     thickness=6)
+
+    def _chkvar(self, default=False):
+        return tk.BooleanVar(value=default)
+
+
+if __name__ == "__main__":
+    app = FileCleanerApp()
+    app.mainloop()
