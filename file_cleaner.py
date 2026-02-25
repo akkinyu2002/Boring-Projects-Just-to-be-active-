@@ -63,15 +63,20 @@ def is_empty(path: Path) -> bool:
 
 
 def is_corrupted(path: Path) -> bool:
-    """Heuristic corruption check: verifies magic bytes for known types."""
+    """Heuristic corruption check: verifies magic bytes for known types.
+
+    Reads up to 1024 bytes and searches for the signature anywhere within
+    that region, because some formats (e.g. PDF) allow the magic header to
+    appear after a BOM or other prefix rather than strictly at byte 0.
+    """
     ext = path.suffix.lower()
     if ext not in KNOWN_SIGNATURES:
         return False
     expected = KNOWN_SIGNATURES[ext]
     try:
         with open(path, "rb") as f:
-            header = f.read(len(expected))
-        return header != expected
+            header = f.read(1024)
+        return expected not in header
     except (PermissionError, OSError):
         return False
 
