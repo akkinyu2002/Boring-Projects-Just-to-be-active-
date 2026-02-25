@@ -15,6 +15,7 @@ import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 from datetime import datetime, timedelta
 from pathlib import Path
+import send2trash
 
 # ── Constants ──────────────────────────────────────────────────────────────────
 MONTHS_THRESHOLD = 5
@@ -256,7 +257,7 @@ class FileCleanerApp(tk.Tk):
                                    bg=self.PANEL, fg=self.TXT_DIM,
                                    font=("Segoe UI", 10))
         self.lbl_status.pack(side="left")
-        self.btn_delete = ttk.Button(bot, text="🗑  Delete Selected",
+        self.btn_delete = ttk.Button(bot, text="🗑  Move to Recycle Bin",
                                       style="Danger.TButton",
                                       command=self._confirm_delete,
                                       state="disabled")
@@ -435,14 +436,13 @@ class FileCleanerApp(tk.Tk):
         if len(selected_files) > 15:
             preview_lines.append(f"  … and {len(selected_files) - 15} more file(s)")
         msg = (
-            f"⚠️  You are about to permanently delete "
-            f"{len(selected_files)} file(s) "
-            f"({human_size(total_size)}):\n\n"
+            f"🗑  Move {len(selected_files)} file(s) "
+            f"({human_size(total_size)}) to the Recycle Bin?\n\n"
             f"{chr(10).join(preview_lines)}\n\n"
-            f"This action CANNOT be undone. Proceed?"
+            f"You can restore them from the Recycle Bin if needed."
         )
         confirmed = messagebox.askyesno(
-            "Confirm Deletion", msg, icon="warning", default="no"
+            "Move to Recycle Bin", msg, icon="warning", default="no"
         )
         if not confirmed:
             self.status_text.set("Deletion cancelled — no files were removed.")
@@ -450,29 +450,28 @@ class FileCleanerApp(tk.Tk):
         self._delete_files(selected_files, selected_iids)
 
     def _delete_files(self, files: list[dict], iids: list[str]):
-        deleted, failed = 0, []
+        moved, failed = 0, []
         for rec, iid in zip(files, iids):
             try:
                 p = Path(rec["full_path"])
                 if p.exists():
-                    p.chmod(stat.S_IWRITE | stat.S_IREAD)
-                    p.unlink()
+                    send2trash.send2trash(str(p))
                     self.tree.delete(iid)
                     self._selected_items.discard(iid)
-                    deleted += 1
+                    moved += 1
             except Exception as e:
                 failed.append(f"{rec['name']}: {e}")
         self._update_selected_label()
         remaining = len(self.tree.get_children())
         self.status_text.set(
-            f"✅ Deleted {deleted} file(s). "
+            f"♻️  Moved {moved} file(s) to Recycle Bin. "
             + (f"❌ {len(failed)} failed." if failed else "")
             + f"  {remaining} item(s) remaining."
         )
         if failed:
             messagebox.showerror(
-                "Some Deletions Failed",
-                "Could not delete:\n\n" + "\n".join(failed[:20])
+                "Some Files Could Not Be Moved",
+                "Could not move to Recycle Bin:\n\n" + "\n".join(failed[:20])
             )
 
 
