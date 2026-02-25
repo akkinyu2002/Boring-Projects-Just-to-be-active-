@@ -1,7 +1,8 @@
 """
 File Cleanup Utility
 ====================
-Finds files unused for more than 5 months and lets the user review them before deleting.
+Finds files unused for more than 5 months (corrupted, empty, or just stale)
+and lets the user review them before deleting. Safe, interactive, and easy to use.
 """
 
 import os
@@ -19,12 +20,14 @@ from pathlib import Path
 MONTHS_THRESHOLD = 5
 DAYS_THRESHOLD   = MONTHS_THRESHOLD * 30
 
+# Known "always useless" extensions
 JUNK_EXTENSIONS = {
     ".tmp", ".temp", ".log", ".bak", ".old", ".chk", ".dmp", ".dump",
     ".~", ".swp", ".swo", ".DS_Store", ".Thumbs.db", ".thumbdata",
     ".crdownload", ".part", ".partial", ".cache",
 }
 
+# Signatures for basic corruption detection (magic bytes)
 KNOWN_SIGNATURES: dict[str, bytes] = {
     ".jpg":  b"\xff\xd8\xff",
     ".jpeg": b"\xff\xd8\xff",
@@ -43,6 +46,7 @@ KNOWN_SIGNATURES: dict[str, bytes] = {
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
 def file_age_days(path: Path) -> float:
+    """Return the number of days since the file was last accessed or modified."""
     try:
         st = path.stat()
         last_used = max(st.st_atime, st.st_mtime)
@@ -50,13 +54,16 @@ def file_age_days(path: Path) -> float:
     except Exception:
         return 0.0
 
+
 def is_empty(path: Path) -> bool:
     try:
         return path.stat().st_size == 0
     except Exception:
         return False
 
+
 def is_corrupted(path: Path) -> bool:
+    """Heuristic corruption check: verifies magic bytes for known types."""
     ext = path.suffix.lower()
     if ext not in KNOWN_SIGNATURES:
         return False
@@ -68,8 +75,10 @@ def is_corrupted(path: Path) -> bool:
     except (PermissionError, OSError):
         return False
 
+
 def is_junk(path: Path) -> bool:
     return path.suffix.lower() in JUNK_EXTENSIONS
+
 
 def human_size(size_bytes: int) -> str:
     for unit in ("B", "KB", "MB", "GB"):
@@ -77,6 +86,7 @@ def human_size(size_bytes: int) -> str:
             return f"{size_bytes:.1f} {unit}"
         size_bytes /= 1024
     return f"{size_bytes:.1f} TB"
+
 
 def human_age(days: float) -> str:
     if days < 1:
@@ -91,6 +101,7 @@ def human_age(days: float) -> str:
 # ── Main App ──────────────────────────────────────────────────────────────────
 
 class FileCleanerApp(tk.Tk):
+    # colour palette (dark-mode)
     BG        = "#1e1e2e"
     PANEL     = "#2a2a3e"
     ACCENT    = "#7c3aed"
@@ -119,6 +130,8 @@ class FileCleanerApp(tk.Tk):
 
         self._build_styles()
         self._build_ui()
+
+    # ── Styles ─────────────────────────────────────────────────────────────
 
     def _build_styles(self):
         s = ttk.Style(self)
@@ -150,8 +163,7 @@ class FileCleanerApp(tk.Tk):
                      troughcolor=self.PANEL, background=self.ACCENT2,
                      thickness=6)
 
-    def _chkvar(self, default=False):
-        return tk.BooleanVar(value=default)
+    # ── UI ─────────────────────────────────────────────────────────────────
 
     def _build_ui(self):
         # ── Top bar ────────────────────────────────────────────────────────
@@ -178,7 +190,7 @@ class FileCleanerApp(tk.Tk):
                                    command=self._start_scan)
         self.btn_scan.pack(side="left", padx=6)
 
-        # ── Filter checkboxes ──────────────────────────────────────────────
+        # ── Filter row ─────────────────────────────────────────────────────
         frow = tk.Frame(self, bg=self.BG, padx=16)
         frow.pack(fill="x", pady=(0, 4))
         self.chk_all_old   = self._chkvar()
@@ -253,10 +265,107 @@ class FileCleanerApp(tk.Tk):
                                      font=("Segoe UI Semibold", 10))
         self.lbl_selected.pack(side="right", padx=12)
 
+    # ── Helpers ────────────────────────────────────────────────────────────
+
+    def _chkvar(self, default=False):
+        return tk.BooleanVar(value=default)
+
     def _browse(self):
         d = filedialog.askdirectory(title="Select folder to scan")
         if d:
             self.scan_dir.set(d)
+
+    # ── Scan ───────────────────────────────────────────────────────────────
+
+    def _start_scan(self):
+        folder = self.scan_dir.get().strip()
+        if not folder:
+            messagebox.showwarning("No Folder", "Please choose a folder to scan.")
+            return
+        if not os.path.isdir(folder):
+            messagebox.showerror("Invalid Folder", f"'{folder}' is not a valid directory.")
+            return
+        for item in self.tree.get_children():
+            self.tree.delete(item)
+        self.results.clear()
+        self._selected_items.clear()
+        self._update_selected_label()
+        self.btn_delete.configure(state="disabled")
+        self._stop_scan = False
+        self.btn_scan.configure(state="disabled")
+        self.progress.start(12)
+        self.status_text.set("Scanning… please wait")
+        self._scan_thread = threading.Thread(target=self._scan_worker,
+                                              args=(folder,), daemon=True)
+        self._scan_thread.start()
+
+    def _scan_worker(self, folder: str):
+        found = []
+        cutoff_days = DAYS_THRESHOLD
+        want_old        = self.chk_all_old.get()
+        want_empty      = self.chk_empty.get()
+        want_corrupted  = self.chk_corrupted.get()
+        want_junk       = self.chk_junk.get()
+
+        for root, dirs, files in os.walk(folder):
+            if self._stop_scan:
+                break
+            dirs[:] = [d for d in dirs if not d.startswith(".")]
+            for fname in files:
+                if self._stop_scan:
+                    break
+                path = Path(root) / fname
+                try:
+                    age  = file_age_days(path)
+                    size = path.stat().st_size
+                except Exception:
+                    continue
+                reasons = []
+                if want_empty and     is_empty(path):     reasons.append("empty")
+                if want_corrupted and is_corrupted(path): reasons.append("corrupted")
+                if want_junk and      is_junk(path):      reasons.append("junk")
+                if want_old and       age >= cutoff_days: reasons.append("old")
+                if not reasons:
+                    continue
+                last_used = datetime.fromtimestamp(
+                    max(path.stat().st_atime, path.stat().st_mtime)
+                ).strftime("%Y-%m-%d")
+                found.append({
+                    "name":      fname,
+                    "path":      str(path.parent),
+                    "full_path": str(path),
+                    "type":      ", ".join(reasons),
+                    "size":      size,
+                    "last_used": last_used,
+                    "age":       age,
+                })
+        self.results = found
+        self.after(0, self._scan_done)
+
+    def _scan_done(self):
+        self.progress.stop()
+        self.btn_scan.configure(state="normal")
+        if not self.results:
+            self.status_text.set("✅ No flagged files found. Your folder looks clean!")
+            return
+        for i, rec in enumerate(self.results):
+            tag = rec["type"].split(",")[0].strip()
+            self.tree.insert("", "end", iid=str(i), tags=(tag,), values=(
+                "☐",
+                rec["name"],
+                rec["path"],
+                rec["type"],
+                human_size(rec["size"]),
+                rec["last_used"],
+                human_age(rec["age"]),
+            ))
+        total_size = sum(r["size"] for r in self.results)
+        self.status_text.set(
+            f"Found {len(self.results)} file(s) | {human_size(total_size)} total "
+            f"| Review below, then delete selected"
+        )
+
+    # ── Selection ──────────────────────────────────────────────────────────
 
     def _on_click(self, event):
         iid = self.tree.identify_row(event.y)
@@ -296,21 +405,73 @@ class FileCleanerApp(tk.Tk):
         self.lbl_selected.config(text=f"{n} selected")
         self.btn_delete.configure(state="normal" if n > 0 else "disabled")
 
+    # ── Sort ───────────────────────────────────────────────────────────────
+
     def _sort_by(self, col):
         items = [(self.tree.set(k, col), k) for k in self.tree.get_children()]
         try:
-            items.sort(key=lambda t: float(t[0].split()[0]) if t[0].replace(".", "").split()[0].isdigit() else t[0])
+            items.sort(key=lambda t: float(t[0].split()[0])
+                       if t[0].replace(".", "").split()[0].isdigit() else t[0])
         except Exception:
             items.sort()
         for index, (_, k) in enumerate(items):
             self.tree.move(k, "", index)
 
-    def _start_scan(self): pass
-    def _scan_worker(self, folder): pass
-    def _scan_done(self): pass
-    def _confirm_delete(self): pass
-    def _delete_files(self, files, iids): pass
+    # ── Delete ─────────────────────────────────────────────────────────────
 
+    def _confirm_delete(self):
+        selected_iids = list(self._selected_items)
+        if not selected_iids:
+            return
+        selected_files = [self.results[int(i)] for i in selected_iids]
+        total_size = sum(f["size"] for f in selected_files)
+        preview_lines = [f"  • {f['name']}  ({f['type']}, {human_size(f['size'])})"
+                         for f in selected_files[:15]]
+        if len(selected_files) > 15:
+            preview_lines.append(f"  … and {len(selected_files) - 15} more file(s)")
+        msg = (
+            f"⚠️  You are about to permanently delete "
+            f"{len(selected_files)} file(s) "
+            f"({human_size(total_size)}):\n\n"
+            f"{chr(10).join(preview_lines)}\n\n"
+            f"This action CANNOT be undone. Proceed?"
+        )
+        confirmed = messagebox.askyesno(
+            "Confirm Deletion", msg, icon="warning", default="no"
+        )
+        if not confirmed:
+            self.status_text.set("Deletion cancelled — no files were removed.")
+            return
+        self._delete_files(selected_files, selected_iids)
+
+    def _delete_files(self, files: list[dict], iids: list[str]):
+        deleted, failed = 0, []
+        for rec, iid in zip(files, iids):
+            try:
+                p = Path(rec["full_path"])
+                if p.exists():
+                    p.chmod(stat.S_IWRITE | stat.S_IREAD)
+                    p.unlink()
+                    self.tree.delete(iid)
+                    self._selected_items.discard(iid)
+                    deleted += 1
+            except Exception as e:
+                failed.append(f"{rec['name']}: {e}")
+        self._update_selected_label()
+        remaining = len(self.tree.get_children())
+        self.status_text.set(
+            f"✅ Deleted {deleted} file(s). "
+            + (f"❌ {len(failed)} failed." if failed else "")
+            + f"  {remaining} item(s) remaining."
+        )
+        if failed:
+            messagebox.showerror(
+                "Some Deletions Failed",
+                "Could not delete:\n\n" + "\n".join(failed[:20])
+            )
+
+
+# ── Entry Point ───────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
     app = FileCleanerApp()
