@@ -77,7 +77,8 @@ class FastSearcher:
         
         for idx, match in enumerate(self.results, 1):
             # Print as clickable file link for modern terminals + index for manual entry
-            link = f"file:///{match.replace('\\', '/')}"
+            link_path = match.replace('\\', '/')
+            link = f"file:///{link_path}"
             print(f"[{idx}] {match}")
             print(f"    Link: {link}")
         
