@@ -1,6 +1,7 @@
 import os
 import time
 import string
+import subprocess
 import concurrent.futures
 from ctypes import windll
 
@@ -39,6 +40,13 @@ class FastSearcher:
             pass
         return matches
 
+    def open_location(self, path):
+        """Opens the file location in Windows Explorer and selects the file."""
+        if os.path.exists(path):
+            subprocess.run(['explorer', '/select,', os.path.normpath(path)])
+        else:
+            print(f"Error: Path does not exist: {path}")
+
     def search(self, target_name):
         """Starts a multi-threaded search across all detected drives."""
         drives = self.get_drives()
@@ -46,7 +54,7 @@ class FastSearcher:
         print(f"Searching for: '{target_name}'...")
         
         start_time = time.time()
-        all_matches = []
+        self.results = []
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=self.max_workers) as executor:
             # Map search across drives
@@ -56,7 +64,7 @@ class FastSearcher:
                 drive = future_to_drive[future]
                 try:
                     data = future.result()
-                    all_matches.extend(data)
+                    self.results.extend(data)
                 except Exception as exc:
                     print(f"Drive {drive} generated an exception: {exc}")
 
@@ -65,11 +73,36 @@ class FastSearcher:
         
         print(f"\nSearch complete in {duration:.2f} seconds.")
         print(f"Total items scanned: {self.scanned_count}")
-        print(f"Found {len(all_matches)} matches:")
-        for match in all_matches:
-            print(f" [MATCH] {match}")
+        print(f"Found {len(self.results)} matches:")
         
-        return all_matches
+        for idx, match in enumerate(self.results, 1):
+            # Print as clickable file link for modern terminals + index for manual entry
+            link = f"file:///{match.replace('\\', '/')}"
+            print(f"[{idx}] {match}")
+            print(f"    Link: {link}")
+        
+        if self.results:
+            self.interactive_loop()
+        
+        return self.results
+
+    def interactive_loop(self):
+        """Prompt the user to open a file from the results."""
+        while True:
+            try:
+                choice = input("\nEnter result number to open location (or 'q' to quit): ").strip().lower()
+                if choice == 'q':
+                    break
+                
+                idx = int(choice)
+                if 1 <= idx <= len(self.results):
+                    path = self.results[idx-1]
+                    print(f"Opening: {path}")
+                    self.open_location(path)
+                else:
+                    print(f"Invalid index. Please enter a number between 1 and {len(self.results)}.")
+            except ValueError:
+                print("Please enter a valid number or 'q'.")
 
 if __name__ == "__main__":
     import sys
@@ -79,5 +112,8 @@ if __name__ == "__main__":
     else:
         target = sys.argv[1]
     
-    searcher = FastSearcher()
-    searcher.search(target)
+    if target.strip():
+        searcher = FastSearcher()
+        searcher.search(target)
+    else:
+        print("No target specified.")
