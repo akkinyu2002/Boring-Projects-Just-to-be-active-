@@ -3,3 +3,9 @@ pymongo
 werkzeug
 python-dotenv
 requests
+fastapi
+uvicorn
+sqlalchemy
+passlib[bcrypt]
+python-jose[cryptography]
+python-multipart
