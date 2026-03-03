@@ -3,14 +3,13 @@
 <head>
     <title>Hello World</title>
     <script>
-        function hello() {
-            if (document.querySelector("h1").innerHTML === "Hello World") {
-                document.querySelector("h1").innerHTML = "Good Bye!";
-            }
-            else {
-                document.querySelector("h1").innerHTML = "Hello World";
-            }
-        }
+        document.addEventListener("DOMContentLoaded", function() {
+            document.querySelector("form").onsubmit = function() {
+                document.querySelector('input')
+                const name = document.querySelector("#name").value;
+                alert("Hello, " + name + "!");
+            };
+        });                     
     </script>
 </head>
 
