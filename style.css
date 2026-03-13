@@ -63,7 +63,7 @@ body{
     gap: 10px;
     margin-bottom: 25px;
 }
-answer-btn{
+.answer-btn{
     padding:1rem;
     background-color: #f8f0e5;
     color:#333;
@@ -71,6 +71,7 @@ answer-btn{
     border-radius: 10px;
     cursor: pointer;
     text-align: left;
+    transition: all 0.3s ease;
 }
 .answer-btn:hover{
     background-color: #eadbc8;
