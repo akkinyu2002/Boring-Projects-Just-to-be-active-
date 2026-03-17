@@ -77,3 +77,20 @@ body{
     background-color: #eadbc8;
     border-color: #dac0ae;
 }
+.answer.answer-btn.correct{
+    background-color: #e6fff0;
+    border-color:#a3f0c4;
+    color: #28a745;
+}
+.answer.answer-btn.incorrect{
+    background-color: #fff0f0;
+    border-color:#ffbdbd;
+    color: #dc3545;
+}
+.progress-bar{
+    height: 10px;
+    background-color: #f8f0e5;
+    border-radius: 5px;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
