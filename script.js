@@ -17,6 +17,9 @@ const progressBar = document.getElementById('progress');
 let currentQuestionIndex = 0;
 let score = 0;
 let activeQuestions = [];
+let previousSessionFirstQuestion = null;
+const QUESTION_BANK_SIZE = 55;
+const SESSION_QUESTION_COUNT = 20;
 
 // Quiz questions
 const quizQuestions = [
@@ -517,8 +520,8 @@ const quizQuestions = [
   },
 ];
 
-function shuffleQuestions(questions) {
-  const shuffled = [...questions];
+function shuffleItems(items) {
+  const shuffled = [...items];
 
   for (let i = shuffled.length - 1; i > 0; i -= 1) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -528,13 +531,68 @@ function shuffleQuestions(questions) {
   return shuffled;
 }
 
+function shuffleAnswers(answers) {
+  const copiedAnswers = answers.map((answer) => ({ ...answer }));
+  return shuffleItems(copiedAnswers);
+}
+
+function validateQuestionBank() {
+  if (quizQuestions.length !== QUESTION_BANK_SIZE) {
+    throw new Error(`Question bank must contain exactly ${QUESTION_BANK_SIZE} questions.`);
+  }
+
+  quizQuestions.forEach((question, index) => {
+    const validQuestionText = typeof question.question === 'string' && question.question.trim().length > 0;
+    const validAnswers = Array.isArray(question.answers) && question.answers.length >= 2;
+    const correctAnswersCount = validAnswers
+      ? question.answers.filter((answer) => answer && answer.correct === true).length
+      : 0;
+
+    if (!validQuestionText || !validAnswers || correctAnswersCount !== 1) {
+      throw new Error(`Invalid quiz question at index ${index}.`);
+    }
+  });
+}
+
+function createSessionQuestions() {
+  const shuffledBank = shuffleItems(quizQuestions);
+
+  if (
+    previousSessionFirstQuestion &&
+    shuffledBank.length > 1 &&
+    shuffledBank[0].question === previousSessionFirstQuestion
+  ) {
+    const differentQuestionIndex = shuffledBank.findIndex(
+      (question, index) =>
+        index > 0 && question.question !== previousSessionFirstQuestion,
+    );
+
+    if (differentQuestionIndex !== -1) {
+      [shuffledBank[0], shuffledBank[differentQuestionIndex]] = [
+        shuffledBank[differentQuestionIndex],
+        shuffledBank[0],
+      ];
+    }
+  }
+
+  const sessionQuestions = shuffledBank.slice(0, SESSION_QUESTION_COUNT).map((question) => ({
+    question: question.question,
+    answers: shuffleAnswers(question.answers),
+  }));
+
+  previousSessionFirstQuestion = sessionQuestions[0] ? sessionQuestions[0].question : null;
+  return sessionQuestions;
+}
+
+validateQuestionBank();
+
 startButton.addEventListener('click', startQuiz);
 restartBtn.addEventListener('click', restartQuiz);
 
 function startQuiz() {
   currentQuestionIndex = 0;
   score = 0;
-  activeQuestions = shuffleQuestions(quizQuestions);
+  activeQuestions = createSessionQuestions();
   totalQuestionsSpan.textContent = activeQuestions.length;
   maxScoreSpan.textContent = activeQuestions.length;
   scoreSpan.textContent = score;
@@ -633,16 +691,15 @@ function restartQuiz() {
   answersContainer.innerHTML = '';
   progressBar.style.width = '0%';
   scoreSpan.textContent = '0';
-  totalQuestionsSpan.textContent = '50';
-  maxScoreSpan.textContent = '50';
+  totalQuestionsSpan.textContent = String(SESSION_QUESTION_COUNT);
+  maxScoreSpan.textContent = String(SESSION_QUESTION_COUNT);
 }
 
 window.addEventListener('DOMContentLoaded', () => {
-  totalQuestionsSpan.textContent = '50';
-  maxScoreSpan.textContent = '50';
+  totalQuestionsSpan.textContent = String(SESSION_QUESTION_COUNT);
+  maxScoreSpan.textContent = String(SESSION_QUESTION_COUNT);
   scoreSpan.textContent = '0';
 });
-
 
 
 
