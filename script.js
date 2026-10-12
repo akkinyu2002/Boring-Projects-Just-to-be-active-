@@ -17,6 +17,7 @@ const progressBar = document.getElementById('progress');
 let currentQuestionIndex = 0;
 let score = 0;
 let activeQuestions = [];
+let previousFirstQuestionText = null;
 
 // Quiz questions
 const quizQuestions = [
@@ -517,8 +518,8 @@ const quizQuestions = [
   },
 ];
 
-function shuffleQuestions(questions) {
-  const shuffled = [...questions];
+function shuffleArray(items) {
+  const shuffled = [...items];
 
   for (let i = shuffled.length - 1; i > 0; i -= 1) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -528,6 +529,26 @@ function shuffleQuestions(questions) {
   return shuffled;
 }
 
+function shuffleQuestions(questions) {
+  const shuffled = shuffleArray(questions);
+
+  if (
+    shuffled.length > 1 &&
+    previousFirstQuestionText &&
+    shuffled[0].question === previousFirstQuestionText
+  ) {
+    const swapIndex = Math.floor(Math.random() * (shuffled.length - 1)) + 1;
+    [shuffled[0], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[0]];
+  }
+
+  return shuffled;
+}
+
+function getShuffledAnswers(answers) {
+  const copiedAnswers = answers.map((answer) => ({ ...answer }));
+  return shuffleArray(copiedAnswers);
+}
+
 startButton.addEventListener('click', startQuiz);
 restartBtn.addEventListener('click', restartQuiz);
 
@@ -535,6 +556,7 @@ function startQuiz() {
   currentQuestionIndex = 0;
   score = 0;
   activeQuestions = shuffleQuestions(quizQuestions);
+  previousFirstQuestionText = activeQuestions[0]?.question ?? null;
   totalQuestionsSpan.textContent = activeQuestions.length;
   maxScoreSpan.textContent = activeQuestions.length;
   scoreSpan.textContent = score;
@@ -553,7 +575,7 @@ function showQuestion() {
 
   currentQuestionSpan.textContent = currentQuestionIndex + 1;
   questionText.textContent = current.question;
-  renderAnswers(current.answers);
+  renderAnswers(getShuffledAnswers(current.answers));
   updateProgress();
 }
 
@@ -642,7 +664,6 @@ window.addEventListener('DOMContentLoaded', () => {
   maxScoreSpan.textContent = '50';
   scoreSpan.textContent = '0';
 });
-
 
 
 
