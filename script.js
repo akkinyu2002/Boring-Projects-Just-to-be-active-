@@ -18,460 +18,515 @@ let currentQuestionIndex = 0;
 let score = 0;
 let activeQuestions = [];
 
-
 // Quiz questions
 const quizQuestions = [
   {
-    question: "What is the capital of France?",
+    question: 'What is the capital of France?',
     answers: [
-      { text: "London", correct: false },
-      { text: "Berlin", correct: false },
-      { text: "Paris", correct: true },
-      { text: "Madrid", correct: false },
+      { text: 'London', correct: false },
+      { text: 'Berlin', correct: false },
+      { text: 'Paris', correct: true },
+      { text: 'Madrid', correct: false },
     ],
   },
   {
-    question: "Which planet is known as the Red Planet?",
+    question: 'Which planet is known as the Red Planet?',
     answers: [
-      { text: "Venus", correct: false },
-      { text: "Mars", correct: true },
-      { text: "Jupiter", correct: false },
-      { text: "Saturn", correct: false },
+      { text: 'Venus', correct: false },
+      { text: 'Mars', correct: true },
+      { text: 'Jupiter', correct: false },
+      { text: 'Saturn', correct: false },
     ],
   },
   {
-    question: "What is the largest ocean on Earth?",
+    question: 'What is the largest ocean on Earth?',
     answers: [
-      { text: "Atlantic Ocean", correct: false },
-      { text: "Indian Ocean", correct: false },
-      { text: "Arctic Ocean", correct: false },
-      { text: "Pacific Ocean", correct: true },
+      { text: 'Atlantic Ocean', correct: false },
+      { text: 'Indian Ocean', correct: false },
+      { text: 'Arctic Ocean', correct: false },
+      { text: 'Pacific Ocean', correct: true },
     ],
   },
   {
-    question: "Which of these is NOT a programming language?",
+    question: 'Which of these is NOT a programming language?',
     answers: [
-      { text: "Java", correct: false },
-      { text: "Python", correct: false },
-      { text: "Banana", correct: true },
-      { text: "JavaScript", correct: false },
+      { text: 'Java', correct: false },
+      { text: 'Python', correct: false },
+      { text: 'Banana', correct: true },
+      { text: 'JavaScript', correct: false },
     ],
   },
   {
-    question: "What is the chemical symbol for gold?",
+    question: 'What is the chemical symbol for gold?',
     answers: [
-      { text: "Go", correct: false },
-      { text: "Gd", correct: false },
-      { text: "Au", correct: true },
-      { text: "Ag", correct: false },
+      { text: 'Go', correct: false },
+      { text: 'Gd', correct: false },
+      { text: 'Au', correct: true },
+      { text: 'Ag', correct: false },
     ],
   },
   {
-    question: "How many continents are there on Earth?",
+    question: 'How many continents are there on Earth?',
     answers: [
-      { text: "5", correct: false },
-      { text: "6", correct: false },
-      { text: "7", correct: true },
-      { text: "8", correct: false },
+      { text: '5', correct: false },
+      { text: '6', correct: false },
+      { text: '7', correct: true },
+      { text: '8', correct: false },
     ],
   },
   {
-    question: "Who painted the Mona Lisa?",
+    question: 'Who painted the Mona Lisa?',
     answers: [
-      { text: "Vincent van Gogh", correct: false },
-      { text: "Leonardo da Vinci", correct: true },
-      { text: "Pablo Picasso", correct: false },
-      { text: "Claude Monet", correct: false },
+      { text: 'Vincent van Gogh', correct: false },
+      { text: 'Leonardo da Vinci', correct: true },
+      { text: 'Pablo Picasso', correct: false },
+      { text: 'Claude Monet', correct: false },
     ],
   },
   {
-    question: "What gas do plants absorb from the atmosphere?",
+    question: 'What gas do plants absorb from the atmosphere?',
     answers: [
-      { text: "Oxygen", correct: false },
-      { text: "Carbon dioxide", correct: true },
-      { text: "Nitrogen", correct: false },
-      { text: "Helium", correct: false },
+      { text: 'Oxygen', correct: false },
+      { text: 'Carbon dioxide', correct: true },
+      { text: 'Nitrogen', correct: false },
+      { text: 'Helium', correct: false },
     ],
   },
   {
-    question: "Which country is known as the Land of the Rising Sun?",
+    question: 'Which country is known as the Land of the Rising Sun?',
     answers: [
-      { text: "China", correct: false },
-      { text: "Japan", correct: true },
-      { text: "Thailand", correct: false },
-      { text: "South Korea", correct: false },
+      { text: 'China', correct: false },
+      { text: 'Japan', correct: true },
+      { text: 'Thailand', correct: false },
+      { text: 'South Korea', correct: false },
     ],
   },
   {
-    question: "What is H2O commonly known as?",
+    question: 'What is H2O commonly known as?',
     answers: [
-      { text: "Salt", correct: false },
-      { text: "Water", correct: true },
-      { text: "Hydrogen", correct: false },
-      { text: "Oxygen", correct: false },
+      { text: 'Salt', correct: false },
+      { text: 'Water', correct: true },
+      { text: 'Hydrogen', correct: false },
+      { text: 'Oxygen', correct: false },
     ],
   },
   {
-    question: "Which instrument has 88 keys?",
+    question: 'Which instrument has 88 keys?',
     answers: [
-      { text: "Guitar", correct: false },
-      { text: "Piano", correct: true },
-      { text: "Violin", correct: false },
-      { text: "Flute", correct: false },
+      { text: 'Guitar', correct: false },
+      { text: 'Piano', correct: true },
+      { text: 'Violin', correct: false },
+      { text: 'Flute', correct: false },
     ],
   },
   {
-    question: "What is the largest planet in our solar system?",
+    question: 'What is the largest planet in our solar system?',
     answers: [
-      { text: "Saturn", correct: false },
-      { text: "Jupiter", correct: true },
-      { text: "Neptune", correct: false },
-      { text: "Earth", correct: false },
+      { text: 'Saturn', correct: false },
+      { text: 'Jupiter', correct: true },
+      { text: 'Neptune', correct: false },
+      { text: 'Earth', correct: false },
     ],
   },
   {
-    question: "Which language is primarily spoken in Brazil?",
+    question: 'Which language is primarily spoken in Brazil?',
     answers: [
-      { text: "Spanish", correct: false },
-      { text: "Portuguese", correct: true },
-      { text: "French", correct: false },
-      { text: "English", correct: false },
+      { text: 'Spanish', correct: false },
+      { text: 'Portuguese', correct: true },
+      { text: 'French', correct: false },
+      { text: 'English', correct: false },
     ],
   },
   {
-    question: "Who wrote 'Romeo and Juliet'?",
+    question: 'Who wrote Romeo and Juliet?',
     answers: [
-      { text: "William Shakespeare", correct: true },
-      { text: "Jane Austen", correct: false },
-      { text: "Charles Dickens", correct: false },
-      { text: "Mark Twain", correct: false },
+      { text: 'William Shakespeare', correct: true },
+      { text: 'Jane Austen', correct: false },
+      { text: 'Charles Dickens', correct: false },
+      { text: 'Mark Twain', correct: false },
     ],
   },
   {
-    question: "What is the hardest natural substance on Earth?",
+    question: 'What is the hardest natural substance on Earth?',
     answers: [
-      { text: "Gold", correct: false },
-      { text: "Iron", correct: false },
-      { text: "Diamond", correct: true },
-      { text: "Quartz", correct: false },
+      { text: 'Gold', correct: false },
+      { text: 'Iron', correct: false },
+      { text: 'Diamond', correct: true },
+      { text: 'Quartz', correct: false },
     ],
   },
   {
-    question: "How many legs does a spider have?",
+    question: 'How many legs does a spider have?',
     answers: [
-      { text: "6", correct: false },
-      { text: "8", correct: true },
-      { text: "10", correct: false },
-      { text: "12", correct: false },
+      { text: '6', correct: false },
+      { text: '8', correct: true },
+      { text: '10', correct: false },
+      { text: '12', correct: false },
     ],
   },
   {
-    question: "Which ocean lies on the east coast of the United States?",
+    question: 'Which ocean lies on the east coast of the United States?',
     answers: [
-      { text: "Pacific Ocean", correct: false },
-      { text: "Atlantic Ocean", correct: true },
-      { text: "Indian Ocean", correct: false },
-      { text: "Arctic Ocean", correct: false },
+      { text: 'Pacific Ocean', correct: false },
+      { text: 'Atlantic Ocean', correct: true },
+      { text: 'Indian Ocean', correct: false },
+      { text: 'Arctic Ocean', correct: false },
     ],
   },
   {
-    question: "What is the square root of 64?",
+    question: 'What is the square root of 64?',
     answers: [
-      { text: "6", correct: false },
-      { text: "7", correct: false },
-      { text: "8", correct: true },
-      { text: "9", correct: false },
+      { text: '6', correct: false },
+      { text: '7', correct: false },
+      { text: '8', correct: true },
+      { text: '9', correct: false },
     ],
   },
   {
-    question: "Which metal is liquid at room temperature?",
+    question: 'Which metal is liquid at room temperature?',
     answers: [
-      { text: "Mercury", correct: true },
-      { text: "Copper", correct: false },
-      { text: "Aluminum", correct: false },
-      { text: "Lead", correct: false },
+      { text: 'Mercury', correct: true },
+      { text: 'Copper', correct: false },
+      { text: 'Aluminum', correct: false },
+      { text: 'Lead', correct: false },
     ],
   },
   {
-    question: "Which continent is the Sahara Desert on?",
+    question: 'Which continent is the Sahara Desert on?',
     answers: [
-      { text: "Asia", correct: false },
-      { text: "Australia", correct: false },
-      { text: "Africa", correct: true },
-      { text: "South America", correct: false },
+      { text: 'Asia', correct: false },
+      { text: 'Australia', correct: false },
+      { text: 'Africa', correct: true },
+      { text: 'South America', correct: false },
     ],
   },
   {
-    question: "What is the smallest prime number?",
+    question: 'Which bird is famous for mimicking human speech?',
     answers: [
-      { text: "0", correct: false },
-      { text: "1", correct: false },
-      { text: "2", correct: true },
-      { text: "3", correct: false },
+      { text: 'Eagle', correct: false },
+      { text: 'Parrot', correct: true },
+      { text: 'Ostrich', correct: false },
+      { text: 'Penguin', correct: false },
     ],
   },
   {
-    question: "Which country gifted the Statue of Liberty to the United States?",
+    question: 'What is the freezing point of water in Celsius?',
     answers: [
-      { text: "France", correct: true },
-      { text: "Italy", correct: false },
-      { text: "Canada", correct: false },
-      { text: "Spain", correct: false },
+      { text: '0', correct: true },
+      { text: '10', correct: false },
+      { text: '-5', correct: false },
+      { text: '100', correct: false },
     ],
   },
   {
-    question: "What is the largest mammal in the world?",
+    question: 'Which organ pumps blood throughout the body?',
     answers: [
-      { text: "African elephant", correct: false },
-      { text: "Blue whale", correct: true },
-      { text: "Giraffe", correct: false },
-      { text: "Hippopotamus", correct: false },
+      { text: 'Lungs', correct: false },
+      { text: 'Brain', correct: false },
+      { text: 'Heart', correct: true },
+      { text: 'Liver', correct: false },
     ],
   },
   {
-    question: "In which year did humans first land on the Moon?",
+    question: 'Which gas do humans breathe in the most?',
     answers: [
-      { text: "1965", correct: false },
-      { text: "1969", correct: true },
-      { text: "1972", correct: false },
-      { text: "1959", correct: false },
+      { text: 'Oxygen', correct: true },
+      { text: 'Helium', correct: false },
+      { text: 'Carbon dioxide', correct: false },
+      { text: 'Hydrogen', correct: false },
     ],
   },
   {
-    question: "Which organ pumps blood through the human body?",
+    question: 'What is the largest mammal on Earth?',
     answers: [
-      { text: "Liver", correct: false },
-      { text: "Kidney", correct: false },
-      { text: "Heart", correct: true },
-      { text: "Lung", correct: false },
+      { text: 'African elephant', correct: false },
+      { text: 'Blue whale', correct: true },
+      { text: 'Giraffe', correct: false },
+      { text: 'Hippopotamus', correct: false },
     ],
   },
   {
-    question: "What is the freezing point of water in Celsius?",
+    question: 'What color do you get when you mix blue and yellow?',
     answers: [
-      { text: "0°C", correct: true },
-      { text: "32°C", correct: false },
-      { text: "-10°C", correct: false },
-      { text: "100°C", correct: false },
+      { text: 'Green', correct: true },
+      { text: 'Purple', correct: false },
+      { text: 'Orange', correct: false },
+      { text: 'Red', correct: false },
     ],
   },
   {
-    question: "Which country has the largest population?",
+    question: 'Which country has the most people in the world?',
     answers: [
-      { text: "India", correct: true },
-      { text: "China", correct: false },
-      { text: "United States", correct: false },
-      { text: "Indonesia", correct: false },
+      { text: 'India', correct: true },
+      { text: 'United States', correct: false },
+      { text: 'China', correct: false },
+      { text: 'Brazil', correct: false },
     ],
   },
   {
-    question: "Who developed the theory of relativity?",
+    question: 'What is the tallest mountain above sea level?',
     answers: [
-      { text: "Isaac Newton", correct: false },
-      { text: "Albert Einstein", correct: true },
-      { text: "Galileo Galilei", correct: false },
-      { text: "Nikola Tesla", correct: false },
+      { text: 'K2', correct: false },
+      { text: 'Mount Kilimanjaro', correct: false },
+      { text: 'Mount Everest', correct: true },
+      { text: 'Denali', correct: false },
     ],
   },
   {
-    question: "Which is the longest river in the world?",
+    question: 'How many days are there in a leap year?',
     answers: [
-      { text: "Amazon River", correct: false },
-      { text: "Nile River", correct: true },
-      { text: "Yangtze River", correct: false },
-      { text: "Mississippi River", correct: false },
+      { text: '364', correct: false },
+      { text: '365', correct: false },
+      { text: '366', correct: true },
+      { text: '367', correct: false },
     ],
   },
   {
-    question: "What is the capital city of Australia?",
+    question: 'Which planet is famous for its rings?',
     answers: [
-      { text: "Sydney", correct: false },
-      { text: "Melbourne", correct: false },
-      { text: "Canberra", correct: true },
-      { text: "Perth", correct: false },
+      { text: 'Mars', correct: false },
+      { text: 'Earth', correct: false },
+      { text: 'Saturn', correct: true },
+      { text: 'Venus', correct: false },
     ],
   },
   {
-    question: "How many players are on a soccer team on the field at one time?",
+    question: 'Which animal is known as the king of the jungle?',
     answers: [
-      { text: "9", correct: false },
-      { text: "10", correct: false },
-      { text: "11", correct: true },
-      { text: "12", correct: false },
+      { text: 'Tiger', correct: false },
+      { text: 'Lion', correct: true },
+      { text: 'Elephant', correct: false },
+      { text: 'Gorilla', correct: false },
     ],
   },
   {
-    question: "Which vitamin is mainly produced when skin is exposed to sunlight?",
+    question: 'What does HTML stand for?',
     answers: [
-      { text: "Vitamin A", correct: false },
-      { text: "Vitamin C", correct: false },
-      { text: "Vitamin D", correct: true },
-      { text: "Vitamin K", correct: false },
+      { text: 'Hyper Transfer Markup Language', correct: false },
+      { text: 'HyperText Markup Language', correct: true },
+      { text: 'HighText Machine Language', correct: false },
+      { text: 'Home Tool Markup Language', correct: false },
     ],
   },
   {
-    question: "Which country is famous for the pyramids of Giza?",
+    question: 'Which country is home to the city of Rome?',
     answers: [
-      { text: "Mexico", correct: false },
-      { text: "Egypt", correct: true },
-      { text: "Peru", correct: false },
-      { text: "Greece", correct: false },
+      { text: 'Spain', correct: false },
+      { text: 'Italy', correct: true },
+      { text: 'Greece', correct: false },
+      { text: 'Portugal', correct: false },
     ],
   },
   {
-    question: "What is the boiling point of pure water at sea level?",
+    question: 'What is the capital of Japan?',
     answers: [
-      { text: "90°C", correct: false },
-      { text: "95°C", correct: false },
-      { text: "100°C", correct: true },
-      { text: "110°C", correct: false },
+      { text: 'Seoul', correct: false },
+      { text: 'Tokyo', correct: true },
+      { text: 'Kyoto', correct: false },
+      { text: 'Osaka', correct: false },
     ],
   },
   {
-    question: "What is the main language spoken in Argentina?",
+    question: 'Which shape has three sides?',
     answers: [
-      { text: "Portuguese", correct: false },
-      { text: "Italian", correct: false },
-      { text: "Spanish", correct: true },
-      { text: "English", correct: false },
+      { text: 'Square', correct: false },
+      { text: 'Triangle', correct: true },
+      { text: 'Rectangle', correct: false },
+      { text: 'Circle', correct: false },
     ],
   },
   {
-    question: "Which blood type is known as the universal donor?",
+    question: 'What is the largest desert on Earth?',
     answers: [
-      { text: "A+", correct: false },
-      { text: "AB+", correct: false },
-      { text: "O-", correct: true },
-      { text: "B-", correct: false },
+      { text: 'Gobi Desert', correct: false },
+      { text: 'Arabian Desert', correct: false },
+      { text: 'Antarctic Desert', correct: true },
+      { text: 'Kalahari Desert', correct: false },
     ],
   },
   {
-    question: "Who was the first person to travel into space?",
+    question: 'Which language has the most native speakers worldwide?',
     answers: [
-      { text: "Neil Armstrong", correct: false },
-      { text: "Yuri Gagarin", correct: true },
-      { text: "Buzz Aldrin", correct: false },
-      { text: "John Glenn", correct: false },
+      { text: 'English', correct: false },
+      { text: 'Spanish', correct: false },
+      { text: 'Mandarin Chinese', correct: true },
+      { text: 'Hindi', correct: false },
     ],
   },
   {
-    question: "What is the largest desert in the world?",
+    question: 'What is the capital of Canada?',
     answers: [
-      { text: "Sahara Desert", correct: false },
-      { text: "Arctic Desert", correct: false },
-      { text: "Antarctic Desert", correct: true },
-      { text: "Gobi Desert", correct: false },
+      { text: 'Toronto', correct: false },
+      { text: 'Ottawa', correct: true },
+      { text: 'Vancouver', correct: false },
+      { text: 'Montreal', correct: false },
     ],
   },
   {
-    question: "How many bones are in an adult human body?",
+    question: 'Which planet is closest to the Sun?',
     answers: [
-      { text: "198", correct: false },
-      { text: "206", correct: true },
-      { text: "214", correct: false },
-      { text: "220", correct: false },
+      { text: 'Venus', correct: false },
+      { text: 'Mercury', correct: true },
+      { text: 'Mars', correct: false },
+      { text: 'Earth', correct: false },
     ],
   },
   {
-    question: "Which mountain is the tallest above sea level?",
+    question: 'What is 12 x 8?',
     answers: [
-      { text: "K2", correct: false },
-      { text: "Mount Kilimanjaro", correct: false },
-      { text: "Mount Everest", correct: true },
-      { text: "Denali", correct: false },
+      { text: '84', correct: false },
+      { text: '96', correct: true },
+      { text: '108', correct: false },
+      { text: '92', correct: false },
     ],
   },
   {
-    question: "Who wrote '1984'?",
+    question: 'Which month has 28 days in a common year?',
     answers: [
-      { text: "George Orwell", correct: true },
-      { text: "Aldous Huxley", correct: false },
-      { text: "Ernest Hemingway", correct: false },
-      { text: "F. Scott Fitzgerald", correct: false },
+      { text: 'February', correct: true },
+      { text: 'April', correct: false },
+      { text: 'June', correct: false },
+      { text: 'November', correct: false },
     ],
   },
   {
-    question: "Which planet is closest to the Sun?",
+    question: 'What is the name of the largest ocean current near the equator?',
     answers: [
-      { text: "Venus", correct: false },
-      { text: "Mercury", correct: true },
-      { text: "Earth", correct: false },
-      { text: "Mars", correct: false },
+      { text: 'Gulf Stream', correct: false },
+      { text: 'Kuroshio Current', correct: false },
+      { text: 'Equatorial Current', correct: true },
+      { text: 'Labrador Current', correct: false },
     ],
   },
   {
-    question: "What is the currency of Japan?",
+    question: 'Which famous structure is located in Paris?',
     answers: [
-      { text: "Won", correct: false },
-      { text: "Yuan", correct: false },
-      { text: "Yen", correct: true },
-      { text: "Ringgit", correct: false },
+      { text: 'Big Ben', correct: false },
+      { text: 'Eiffel Tower', correct: true },
+      { text: 'Statue of Liberty', correct: false },
+      { text: 'Colosseum', correct: false },
     ],
   },
   {
-    question: "Which continent has the most countries?",
+    question: 'Which is a mammal that can fly?',
     answers: [
-      { text: "Asia", correct: false },
-      { text: "Europe", correct: false },
-      { text: "Africa", correct: true },
-      { text: "South America", correct: false },
+      { text: 'Penguin', correct: false },
+      { text: 'Bat', correct: true },
+      { text: 'Dolphin', correct: false },
+      { text: 'Owl', correct: false },
     ],
   },
   {
-    question: "What is the primary gas in Earth's atmosphere?",
+    question: 'What does CPU stand for?',
     answers: [
-      { text: "Oxygen", correct: false },
-      { text: "Carbon dioxide", correct: false },
-      { text: "Nitrogen", correct: true },
-      { text: "Hydrogen", correct: false },
+      { text: 'Central Processing Unit', correct: true },
+      { text: 'Computer Power Utility', correct: false },
+      { text: 'Central Program Unit', correct: false },
+      { text: 'Control Processing Unit', correct: false },
     ],
   },
   {
-    question: "Who composed The Four Seasons?",
+    question: 'What is the national animal of Scotland?',
     answers: [
-      { text: "Johann Sebastian Bach", correct: false },
-      { text: "Antonio Vivaldi", correct: true },
-      { text: "Wolfgang Amadeus Mozart", correct: false },
-      { text: "Ludwig van Beethoven", correct: false },
+      { text: 'Unicorn', correct: true },
+      { text: 'Lion', correct: false },
+      { text: 'Hawk', correct: false },
+      { text: 'Wolf', correct: false },
     ],
   },
   {
-    question: "Which country hosted the 2016 Summer Olympics?",
+    question: 'Which element is represented by the symbol O?',
     answers: [
-      { text: "China", correct: false },
-      { text: "United Kingdom", correct: false },
-      { text: "Brazil", correct: true },
-      { text: "Japan", correct: false },
+      { text: 'Gold', correct: false },
+      { text: 'Oxygen', correct: true },
+      { text: 'Osmium', correct: false },
+      { text: 'Silver', correct: false },
     ],
   },
   {
-    question: "What is the largest internal organ in the human body?",
+    question: 'Which ocean is the largest?',
     answers: [
-      { text: "Brain", correct: false },
-      { text: "Lung", correct: false },
-      { text: "Liver", correct: true },
-      { text: "Kidney", correct: false },
+      { text: 'Atlantic Ocean', correct: false },
+      { text: 'Indian Ocean', correct: false },
+      { text: 'Pacific Ocean', correct: true },
+      { text: 'Southern Ocean', correct: false },
     ],
   },
   {
-    question: "Which ocean is between Africa and Australia?",
+    question: 'Which instrument is played by blowing air into it?',
     answers: [
-      { text: "Pacific Ocean", correct: false },
-      { text: "Indian Ocean", correct: true },
-      { text: "Atlantic Ocean", correct: false },
-      { text: "Southern Ocean", correct: false },
+      { text: 'Piano', correct: false },
+      { text: 'Trumpet', correct: true },
+      { text: 'Violin', correct: false },
+      { text: 'Drum', correct: false },
     ],
   },
   {
-    question: "Who discovered penicillin?",
+    question: 'What is the boiling point of water in Celsius?',
     answers: [
-      { text: "Alexander Fleming", correct: true },
-      { text: "Louis Pasteur", correct: false },
-      { text: "Marie Curie", correct: false },
-      { text: "Gregor Mendel", correct: false },
+      { text: '50', correct: false },
+      { text: '100', correct: true },
+      { text: '80', correct: false },
+      { text: '120', correct: false },
+    ],
+  },
+  {
+    question: 'How many sides does a hexagon have?',
+    answers: [
+      { text: '5', correct: false },
+      { text: '6', correct: true },
+      { text: '7', correct: false },
+      { text: '8', correct: false },
+    ],
+  },
+  {
+    question: 'Which country is famous for the pyramids?',
+    answers: [
+      { text: 'Mexico', correct: false },
+      { text: 'Egypt', correct: true },
+      { text: 'Greece', correct: false },
+      { text: 'Peru', correct: false },
+    ],
+  },
+  {
+    question: 'What is the smallest prime number?',
+    answers: [
+      { text: '0', correct: false },
+      { text: '1', correct: false },
+      { text: '2', correct: true },
+      { text: '3', correct: false },
+    ],
+  },
+  {
+    question: 'What is the currency of the United Kingdom?',
+    answers: [
+      { text: 'Euro', correct: false },
+      { text: 'Pound sterling', correct: true },
+      { text: 'Dollar', correct: false },
+      { text: 'Yen', correct: false },
+    ],
+  },
+  {
+    question: 'Which planet is known for its Great Red Spot?',
+    answers: [
+      { text: 'Mars', correct: false },
+      { text: 'Jupiter', correct: true },
+      { text: 'Neptune', correct: false },
+      { text: 'Saturn', correct: false },
     ],
   },
 ];
+
+function shuffleQuestions(questions) {
+  const shuffled = [...questions];
+
+  for (let i = shuffled.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+
+  return shuffled;
+}
 
 startButton.addEventListener('click', startQuiz);
 restartBtn.addEventListener('click', restartQuiz);
@@ -491,6 +546,11 @@ function startQuiz() {
 
 function showQuestion() {
   const current = activeQuestions[currentQuestionIndex];
+
+  if (!current) {
+    return;
+  }
+
   currentQuestionSpan.textContent = currentQuestionIndex + 1;
   questionText.textContent = current.question;
   renderAnswers(current.answers);
@@ -562,20 +622,280 @@ function getResultMessage() {
   return 'Keep trying—you will get there!';
 }
 
-function shuffleQuestions(questions) {
-  const shuffled = [...questions];
-  for (let i = shuffled.length - 1; i > 0; i -= 1) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
-  return shuffled;
-}
-
 function restartQuiz() {
+  currentQuestionIndex = 0;
+  score = 0;
+  activeQuestions = [];
   startScreen.classList.add('active');
   quizScreen.classList.remove('active');
   resultScreen.classList.remove('active');
   questionText.textContent = 'Question goes here';
   answersContainer.innerHTML = '';
   progressBar.style.width = '0%';
+  scoreSpan.textContent = '0';
+  totalQuestionsSpan.textContent = '50';
+  maxScoreSpan.textContent = '50';
 }
+
+window.addEventListener('DOMContentLoaded', () => {
+  totalQuestionsSpan.textContent = '50';
+  maxScoreSpan.textContent = '50';
+  scoreSpan.textContent = '0';
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
